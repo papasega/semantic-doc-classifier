@@ -77,7 +77,7 @@ The pipeline is split into three independent, composable stages:
 Traditional document classifiers rely on brittle rule chains:
 
 ```python
-# ❌ FRAGILE — What this project eliminates
+# FRAGILE — What this project eliminates
 if "facture" in text or "invoice" in text:
     return "FACTURE"
 elif "contrat" in text and "article" in text:
@@ -114,19 +114,19 @@ The system "understands" that a "devis" (quote) is semantically close to a "fact
 
 A text embedding model is a learned function:
 
-$$
-f_\theta : \mathcal{T} \rightarrow \mathbb{R}^d
-$$
+```math
+f_{\theta} : \mathcal{T} \rightarrow \mathbb{R}^d
+```
 
 that maps a text string from the space of all texts $\mathcal{T}$ to a point in a $d$-dimensional real vector space (here $d = 1024$), parameterized by model weights $\theta$.
 
 The key property of a *well-trained* embedding model is that **semantic similarity in natural language maps to geometric proximity in vector space**:
 
-$$
-\text{sem}(t_1, t_2) \approx \text{sim}\big(f_\theta(t_1),\; f_\theta(t_2)\big)
-$$
+```math
+\operatorname{sem}(t_1, t_2) \approx \operatorname{sim}\bigl(f_{\theta}(t_1),\; f_{\theta}(t_2)\bigr)
+```
 
-where $\text{sem}$ is an abstract notion of semantic similarity between texts $t_1$ and $t_2$, and $\text{sim}$ is a geometric similarity measure between their embeddings.
+where $\operatorname{sem}$ is an abstract notion of semantic similarity between texts $t_1$ and $t_2$, and $\operatorname{sim}$ is a geometric similarity measure between their embeddings.
 
 Concretely, this means:
 
@@ -142,98 +142,98 @@ Given two vectors $\mathbf{a}, \mathbf{b} \in \mathbb{R}^d$, three natural measu
 
 **Dot Product (Inner Product):**
 
-$$
+```math
 \langle \mathbf{a}, \mathbf{b} \rangle = \mathbf{a} \cdot \mathbf{b} = \sum_{i=1}^{d} a_i \cdot b_i
-$$
+```
 
 This measures both *directional alignment* and *magnitude*. Two vectors can have a high dot product simply because they are long, not because they point in the same direction. Computationally, this is a single `BLAS Level 1` operation — the fastest of the three.
 
 **Euclidean Distance (L2 Distance):**
 
-$$
-d_2(\mathbf{a}, \mathbf{b}) = \|\mathbf{a} - \mathbf{b}\|_2 = \sqrt{\sum_{i=1}^{d} (a_i - b_i)^2}
-$$
+```math
+d_2(\mathbf{a}, \mathbf{b}) = \lVert \mathbf{a} - \mathbf{b} \rVert_2 = \sqrt{\sum_{i=1}^{d} (a_i - b_i)^2}
+```
 
 This measures the "straight line" distance between two points in the vector space. Smaller distance = more similar. It is sensitive to vector magnitude: two vectors pointing in the same direction but with different lengths will have a non-zero distance.
 
 **Cosine Similarity:**
 
-$$
-\text{cos\_sim}(\mathbf{a}, \mathbf{b}) = \frac{\langle \mathbf{a}, \mathbf{b} \rangle}{\|\mathbf{a}\|_2 \cdot \|\mathbf{b}\|_2} = \frac{\displaystyle\sum_{i=1}^{d} a_i \cdot b_i}{\sqrt{\displaystyle\sum_{i=1}^{d} a_i^2} \;\cdot\; \sqrt{\displaystyle\sum_{i=1}^{d} b_i^2}}
-$$
+```math
+\operatorname{cossim}(\mathbf{a}, \mathbf{b}) = \frac{\langle \mathbf{a}, \mathbf{b} \rangle}{\lVert \mathbf{a} \rVert_2 \cdot \lVert \mathbf{b} \rVert_2} = \frac{\displaystyle\sum_{i=1}^{d} a_i \cdot b_i}{\sqrt{\displaystyle\sum_{i=1}^{d} a_i^2} \;\cdot\; \sqrt{\displaystyle\sum_{i=1}^{d} b_i^2}}
+```
 
 This measures the *angle* $\theta$ between two vectors, completely ignoring their magnitudes:
 
-$$
-\text{cos\_sim}(\mathbf{a}, \mathbf{b}) = \cos(\theta)
-$$
+```math
+\operatorname{cossim}(\mathbf{a}, \mathbf{b}) = \cos(\theta)
+```
 
 | Value | Geometric Meaning | Semantic Interpretation |
 |-------|-------------------|------------------------|
-| $\cos(\theta) = 1$ | Vectors are parallel ($\theta = 0°$) | Identical semantics |
-| $\cos(\theta) = 0$ | Vectors are orthogonal ($\theta = 90°$) | Unrelated semantics |
-| $\cos(\theta) = -1$ | Vectors are anti-parallel ($\theta = 180°$) | Opposite semantics (rare in practice) |
+| cos(θ) = 1 | Vectors are parallel (θ = 0°) | Identical semantics |
+| cos(θ) = 0 | Vectors are orthogonal (θ = 90°) | Unrelated semantics |
+| cos(θ) = -1 | Vectors are anti-parallel (θ = 180°) | Opposite semantics (rare in practice) |
 
 **Why cosine similarity is preferred for text classification:** A short document and a long document about the same topic should be classified identically. Cosine similarity is **magnitude-invariant** — it depends only on the *direction* of the embedding, which captures semantic content rather than document length.
 
 ### 3.3 Why Normalized Vectors Simplify Everything
 
-A vector $\mathbf{v}$ is **L2-normalized** (unit vector) when:
+A vector **v** is **L2-normalized** (unit vector) when:
 
-$$
-\|\mathbf{v}\|_2 = \sqrt{\sum_{i=1}^{d} v_i^2} = 1
-$$
+```math
+\lVert \mathbf{v} \rVert_2 = \sqrt{\sum_{i=1}^{d} v_i^2} = 1
+```
 
 The normalization operation projects any non-zero vector onto the unit hypersphere:
 
-$$
-\hat{\mathbf{v}} = \frac{\mathbf{v}}{\|\mathbf{v}\|_2}
-$$
+```math
+\hat{\mathbf{v}} = \frac{\mathbf{v}}{\lVert \mathbf{v} \rVert_2}
+```
 
 **After L2 normalization, all three metrics become equivalent:**
 
 *Cosine similarity becomes a dot product:*
 
-$$
-\text{cos\_sim}(\hat{\mathbf{a}}, \hat{\mathbf{b}}) = \frac{\hat{\mathbf{a}} \cdot \hat{\mathbf{b}}}{\underbrace{\|\hat{\mathbf{a}}\|_2}_{=1} \cdot \underbrace{\|\hat{\mathbf{b}}\|_2}_{=1}} = \hat{\mathbf{a}} \cdot \hat{\mathbf{b}}
-$$
+```math
+\operatorname{cossim}(\hat{\mathbf{a}}, \hat{\mathbf{b}}) = \frac{\hat{\mathbf{a}} \cdot \hat{\mathbf{b}}}{\underbrace{\lVert \hat{\mathbf{a}} \rVert_2}_{=1} \cdot \underbrace{\lVert \hat{\mathbf{b}} \rVert_2}_{=1}} = \hat{\mathbf{a}} \cdot \hat{\mathbf{b}}
+```
 
 *Euclidean distance becomes a monotonic function of cosine similarity:*
 
-$$
-\|\hat{\mathbf{a}} - \hat{\mathbf{b}}\|_2^2 = \|\hat{\mathbf{a}}\|_2^2 + \|\hat{\mathbf{b}}\|_2^2 - 2\langle\hat{\mathbf{a}}, \hat{\mathbf{b}}\rangle = 2 - 2\cos(\theta)
-$$
+```math
+\lVert \hat{\mathbf{a}} - \hat{\mathbf{b}} \rVert_2^2 = \lVert \hat{\mathbf{a}} \rVert_2^2 + \lVert \hat{\mathbf{b}} \rVert_2^2 - 2\langle\hat{\mathbf{a}}, \hat{\mathbf{b}}\rangle = 2 - 2\cos(\theta)
+```
 
 **Practical consequence:** With L2-normalized embeddings (enforced by `normalize_embeddings=True` in our pipeline):
 
-- **Maximizing cosine similarity** $\equiv$ **maximizing dot product** $\equiv$ **minimizing Euclidean distance**
+- **Maximizing cosine similarity** ≡ **maximizing dot product** ≡ **minimizing Euclidean distance**
 - We use the **dot product** because it is the fastest: a single matrix multiplication on GPU
 
 For a batch of $n$ documents against $K$ class centroids:
 
-$$
-\mathbf{S} = \hat{\mathbf{Q}} \cdot \hat{\mathbf{C}}^T \quad \in \mathbb{R}^{n \times K}
-$$
+```math
+\mathbf{S} = \hat{\mathbf{Q}} \cdot \hat{\mathbf{C}}^{\top} \quad \in \mathbb{R}^{n \times K}
+```
 
 where $\hat{\mathbf{Q}} \in \mathbb{R}^{n \times d}$ is the query matrix and $\hat{\mathbf{C}} \in \mathbb{R}^{K \times d}$ is the centroid matrix. This is a standard `GEMM` (General Matrix Multiply) operation, hardware-optimized on CUDA via cuBLAS. On an A100, this completes in microseconds for typical workloads.
 
 ### 3.4 Centroid-Based Classification
 
-Each document class $k \in \{1, \ldots, K\}$ is defined by a set of $m_k$ natural language descriptions $\{s_1^{(k)}, s_2^{(k)}, \ldots, s_{m_k}^{(k)}\}$ (typically 4–8 descriptions per class).
+Each document class $k \in \lbrace 1, \ldots, K \rbrace$ is defined by a set of $m_k$ natural language descriptions (typically 4–8 descriptions per class).
 
 **Step 1 — Compute class centroids (done once at startup):**
 
-For each class $k$, embed all its descriptions using the embedding model $f_\theta$ and compute the arithmetic mean:
+For each class $k$, embed all its descriptions using the embedding model and compute the arithmetic mean:
 
-$$
-\mathbf{c}_k = \frac{1}{m_k} \sum_{j=1}^{m_k} f_\theta(s_j^{(k)})
-$$
+```math
+\mathbf{c}_k = \frac{1}{m_k} \sum_{j=1}^{m_k} f_{\theta}\bigl(s_j^{(k)}\bigr)
+```
 
 Then L2-normalize the centroid to project it onto the unit hypersphere:
 
-$$
-\hat{\mathbf{c}}_k = \frac{\mathbf{c}_k}{\|\mathbf{c}_k\|_2}
-$$
+```math
+\hat{\mathbf{c}}_k = \frac{\mathbf{c}_k}{\lVert \mathbf{c}_k \rVert_2}
+```
 
 The centroid $\hat{\mathbf{c}}_k$ represents the **"semantic center of gravity"** of class $k$ in the embedding space. By averaging multiple descriptions, we achieve two properties:
 
@@ -242,79 +242,79 @@ The centroid $\hat{\mathbf{c}}_k$ represents the **"semantic center of gravity"*
 
 **Step 2 — Classify a document:**
 
-Given a document with text $t$, compute its embedding $\hat{\mathbf{q}} = \text{normalize}(f_\theta(t))$. Then compute similarities against all centroids:
+Given a document with text $t$, compute its embedding $\hat{\mathbf{q}} = \operatorname{normalize}(f_{\theta}(t))$. Then compute similarities against all centroids:
 
-$$
-s_k = \hat{\mathbf{q}} \cdot \hat{\mathbf{c}}_k \quad \forall k \in \{1, \ldots, K\}
-$$
+```math
+s_k = \hat{\mathbf{q}} \cdot \hat{\mathbf{c}}_k \quad \forall\; k \in \lbrace 1, \ldots, K \rbrace
+```
 
 The predicted class is:
 
-$$
-\hat{k} = \underset{k \in \{1,\ldots,K\}}{\arg\max} \; s_k
-$$
+```math
+\hat{k} = \underset{k \in \lbrace 1,\ldots,K \rbrace}{\operatorname{arg\,max}} \; s_k
+```
 
 **Computational complexity per classification:**
 
 | Operation | Complexity | Time (A100) |
 |-----------|-----------|-------------|
-| Embedding (forward pass) | $O(L^2 \cdot d_{\text{model}})$ | ~20ms |
-| Similarity computation | $O(K \cdot d)$ | <0.01ms |
-| Sorting top-k | $O(K \log K)$ | <0.001ms |
+| Embedding (forward pass) | O(L² · d) | ~20ms |
+| Similarity computation | O(K · d) | <0.01ms |
+| Sorting top-k | O(K log K) | <0.001ms |
 | **Total** | **Dominated by embedding** | **~20ms** |
 
-Where $L$ is the sequence length (tokens) and $d_{\text{model}}$ is the transformer hidden dimension.
+Where L is the sequence length (tokens) and d is the transformer hidden dimension.
 
 ### 3.5 Confidence Thresholding & Decision Boundaries
 
-The raw similarity score $s^* = \max_k s_k$ measures how well the document matches the best class. We apply a threshold $\tau$ (default: 0.40):
+The raw similarity score $s^{\*} = \max_k s_k$ measures how well the document matches the best class. We apply a threshold $\tau$ (default: 0.40):
 
-$$
-\hat{k} = \begin{cases} \underset{k}{\arg\max}\; s_k & \text{if } s^* \geq \tau \\ \texttt{UNKNOWN} & \text{if } s^* < \tau \end{cases}
-$$
+```math
+\hat{k} = \begin{cases} \underset{k}{\operatorname{arg\,max}}\; s_k & \text{if } s^{*} \geq \tau \\ \texttt{UNKNOWN} & \text{if } s^{*} < \tau \end{cases}
+```
 
 **The margin** between the top two candidates provides additional signal:
 
-$$
+```math
 \Delta = s^{(1)} - s^{(2)}
-$$
+```
 
 where $s^{(1)}$ and $s^{(2)}$ are the highest and second-highest scores respectively.
 
-| Margin $\Delta$ | Interpretation | Action |
-|----------------|----------------|--------|
-| $\Delta > 0.15$ | Clear winner | High confidence classification |
-| $0.05 < \Delta \leq 0.15$ | Moderate separation | Classification valid but worth monitoring |
-| $\Delta \leq 0.05$ | Near-tie | Consider human review |
+| Margin Δ | Interpretation | Action |
+|----------|----------------|--------|
+| Δ > 0.15 | Clear winner | High confidence classification |
+| 0.05 < Δ ≤ 0.15 | Moderate separation | Classification valid but worth monitoring |
+| Δ ≤ 0.05 | Near-tie | Consider human review |
 
 **Geometric interpretation — Voronoi tessellation:**
 
 In the embedding space, each centroid $\hat{\mathbf{c}}_k$ defines a **Voronoi cell** — the set of all points closer to $\hat{\mathbf{c}}_k$ than to any other centroid:
 
-$$
-V_k = \big\{\ \mathbf{x} \in \mathcal{S}^{d-1} \ \big|\ \hat{\mathbf{x}} \cdot \hat{\mathbf{c}}_k \geq \hat{\mathbf{x}} \cdot \hat{\mathbf{c}}_j \;\; \forall j \neq k \ \big\}
-$$
+```math
+V_k = \bigl\lbrace\; \mathbf{x} \in \mathcal{S}^{d-1} \;\bigm|\; \hat{\mathbf{x}} \cdot \hat{\mathbf{c}}_k \geq \hat{\mathbf{x}} \cdot \hat{\mathbf{c}}_j \;\; \forall\, j \neq k \;\bigr\rbrace
+```
 
 The **decision boundary** between two classes $i$ and $j$ is the hyperplane:
 
-$$
-H_{ij} = \big\{\ \mathbf{x} \in \mathbb{R}^d \ \big|\ \mathbf{x} \cdot (\hat{\mathbf{c}}_i - \hat{\mathbf{c}}_j) = 0 \ \big\}
-$$
+```math
+H_{ij} = \bigl\lbrace\; \mathbf{x} \in \mathbb{R}^d \;\bigm|\; \mathbf{x} \cdot (\hat{\mathbf{c}}_i - \hat{\mathbf{c}}_j) = 0 \;\bigr\rbrace
+```
 
-Documents near this hyperplane will have small margins $\Delta$, indicating genuine semantic ambiguity between the two classes.
+Documents near this hyperplane will have small margins Δ, indicating genuine semantic ambiguity between the two classes.
 
 ### 3.6 The Curse of Dimensionality
 
 In high-dimensional spaces ($d > 100$), a counter-intuitive phenomenon occurs: **all pairwise distances concentrate around their mean**. For $n$ points uniformly distributed in the unit cube $[0,1]^d$:
 
-$$
+```math
 \lim_{d \to \infty} \frac{d_{\max} - d_{\min}}{d_{\min}} \to 0
-$$
+```
 
 This means the contrast between the nearest and farthest neighbor vanishes. However, this does **not** break our classifier because:
 
 1. **Embeddings are not uniformly distributed.** They cluster by semantic topic, creating exploitable local structure.
-2. **We compare against $K = 7$ centroids, not millions of points.** The centroid computation already averages out noise.
+2. **We compare against K = 7 centroids, not millions of points.** The centroid computation already averages out noise.
 3. **Cosine similarity on normalized vectors** is more robust than Euclidean distance in high dimensions because it measures angular separation rather than absolute distance.
 
 The curse of dimensionality becomes critical when scaling to approximate nearest neighbor search in vector databases — but that is a concern for Step 2 (RAG), not for the classification step.
@@ -363,42 +363,42 @@ Each stage is a separate neural network, running sequentially on the GPU. This m
 
 ### 4.2 Text Detection: DBNet Architecture
 
-**Problem formulation:** Given an input image $\mathbf{I} \in \mathbb{R}^{H \times W \times 3}$, produce a set of bounding polygons $\{P_1, P_2, \ldots, P_n\}$ where each $P_i$ encloses a text region.
+**Problem formulation:** Given an input image $\mathbf{I} \in \mathbb{R}^{H \times W \times 3}$, produce a set of bounding polygons where each polygon encloses a text region.
 
 **Architecture:** DBNet (Differentiable Binarization Network) uses:
 
-1. **ResNet-18/50 backbone** — extracts multi-scale feature maps $\{F_2, F_3, F_4, F_5\}$ at strides $\{4, 8, 16, 32\}$
+1. **ResNet-18/50 backbone** — extracts multi-scale feature maps at strides {4, 8, 16, 32}
 2. **Feature Pyramid Network (FPN)** — fuses features across scales to detect text of varying sizes
-3. **Prediction heads** — output a probability map $P \in [0,1]^{H \times W}$ and a threshold map $T \in [0,1]^{H \times W}$
+3. **Prediction heads** — output a probability map P ∈ [0,1]^(H×W) and a threshold map T ∈ [0,1]^(H×W)
 
 **The key innovation — Differentiable Binarization:**
 
 Traditional binarization applies a hard threshold to convert the probability map to a binary mask:
 
-$$
+```math
 B_{i,j} = \begin{cases} 1 & \text{if } P_{i,j} \geq t \\ 0 & \text{otherwise} \end{cases}
-$$
+```
 
 This step function has zero gradient almost everywhere, making it impossible to train end-to-end via backpropagation. DBNet replaces it with an approximate, differentiable step function:
 
-$$
+```math
 \hat{B}_{i,j} = \frac{1}{1 + e^{-k \cdot (P_{i,j} - T_{i,j})}}
-$$
+```
 
 where:
-- $P_{i,j}$ is the probability of text at pixel $(i,j)$
-- $T_{i,j}$ is the **adaptive threshold** at pixel $(i,j)$, learned by the network
-- $k$ is the amplification factor (typically $k = 50$), controlling the sharpness
+- $P_{i,j}$ is the probability of text at pixel (i,j)
+- $T_{i,j}$ is the **adaptive threshold** at pixel (i,j), learned by the network
+- $k$ is the amplification factor (typically k = 50), controlling the sharpness
 
-As $k \to \infty$, this sigmoid approaches the hard step function. During training, $k$ is kept finite for gradient flow; during inference, the hard threshold can be used.
+As $k \to \infty$, this sigmoid approaches the hard step function. During training, k is kept finite for gradient flow; during inference, the hard threshold can be used.
 
 **The `det_db_box_thresh` parameter** (0.5 in our config) sets the minimum average probability inside a detected box for it to be kept. This is a precision/recall trade-off:
 
-$$
-\text{box\_score} = \frac{1}{|R|} \sum_{(i,j) \in R} P_{i,j}
-$$
+```math
+\operatorname{box\\_score} = \frac{1}{|R|} \sum_{(i,j) \in R} P_{i,j}
+```
 
-where $R$ is the set of pixels inside the detected polygon.
+where R is the set of pixels inside the detected polygon.
 
 ### 4.3 Text Recognition: CRNN + CTC Decoding
 
@@ -406,57 +406,53 @@ Once text regions are detected and cropped, each region is fed to the recognitio
 
 **Architecture:** The CRNN (Convolutional Recurrent Neural Network) has three components:
 
-1. **Convolutional layers** (ResNet/MobileNet backbone): Extract visual feature maps from the cropped text image $\mathbf{x} \in \mathbb{R}^{h \times w \times 3}$, producing a feature sequence $\mathbf{F} \in \mathbb{R}^{T \times d_f}$ where $T$ is the number of horizontal positions and $d_f$ is the feature dimension.
+1. **Convolutional layers** (ResNet/MobileNet backbone): Extract visual feature maps from the cropped text image, producing a feature sequence $\mathbf{F} \in \mathbb{R}^{T \times d_f}$ where T is the number of horizontal positions and $d_f$ is the feature dimension.
 
-2. **Bidirectional LSTM**: Models sequential dependencies between characters. For each time step $t$:
+2. **Bidirectional LSTM**: Models sequential dependencies between characters. For each time step t:
 
-$$
-\overrightarrow{\mathbf{h}}_t = \text{LSTM}_{\text{fwd}}(\mathbf{F}_t, \overrightarrow{\mathbf{h}}_{t-1})
-\quad\quad
-\overleftarrow{\mathbf{h}}_t = \text{LSTM}_{\text{bwd}}(\mathbf{F}_t, \overleftarrow{\mathbf{h}}_{t+1})
-$$
+```math
+\overrightarrow{\mathbf{h}}_t = \operatorname{LSTM_{fwd}}(\mathbf{F}_t,\; \overrightarrow{\mathbf{h}}_{t-1})
+```
 
-$$
+```math
+\overleftarrow{\mathbf{h}}_t = \operatorname{LSTM_{bwd}}(\mathbf{F}_t,\; \overleftarrow{\mathbf{h}}_{t+1})
+```
+
+```math
 \mathbf{h}_t = [\overrightarrow{\mathbf{h}}_t \;;\; \overleftarrow{\mathbf{h}}_t]
-$$
+```
 
-3. **Linear + Softmax**: Produces a probability distribution over the character set $\mathcal{C} \cup \{\text{blank}\}$ at each time step:
+3. **Linear + Softmax**: Produces a probability distribution over the character set $\mathcal{C} \cup \lbrace \text{blank} \rbrace$ at each time step:
 
-$$
-P(\pi_t = c \;|\; \mathbf{x}) = \text{softmax}(\mathbf{W} \mathbf{h}_t + \mathbf{b})_c
-$$
+```math
+P(\pi_t = c \mid \mathbf{x}) = \operatorname{softmax}(\mathbf{W} \mathbf{h}_t + \mathbf{b})_c
+```
 
 **CTC (Connectionist Temporal Classification) Decoding:**
 
-CTC solves the **alignment problem**: the feature sequence has $T$ time steps, but the output text has $L$ characters ($L \leq T$). There is no explicit alignment between positions and characters.
+CTC solves the **alignment problem**: the feature sequence has T time steps, but the output text has L characters (L ≤ T). There is no explicit alignment between positions and characters.
 
-CTC introduces a *blank* token $\epsilon$ and defines a many-to-one mapping $\mathcal{B}$:
+CTC introduces a *blank* token ε and defines a many-to-one mapping B that (1) removes repeated characters and (2) removes blanks. For example:
 
-$$
-\mathcal{B}(\pi_1, \pi_2, \ldots, \pi_T) = \text{text}
-$$
+```
+B(-HH-EE-LL-LO-) = "HELLO"
+```
 
-by (1) removing repeated characters and (2) removing blanks. For example:
+The CTC loss marginalizes over all valid alignments π that produce the target text **y**:
 
-$$
-\mathcal{B}(\text{-HH-EE-LL-LO-}) = \text{"HELLO"}
-$$
-
-The CTC loss marginalizes over all valid alignments $\pi$ that produce the target text $\mathbf{y}$:
-
-$$
-P(\mathbf{y} \;|\; \mathbf{x}) = \sum_{\pi \;\in\; \mathcal{B}^{-1}(\mathbf{y})} \prod_{t=1}^{T} P(\pi_t \;|\; \mathbf{x})
-$$
+```math
+P(\mathbf{y} \mid \mathbf{x}) = \sum_{\pi \in \mathcal{B}^{-1}(\mathbf{y})} \prod_{t=1}^{T} P(\pi_t \mid \mathbf{x})
+```
 
 At inference, the most likely text is found via beam search or greedy decoding.
 
-**The confidence score** for each recognized line is derived from the product of per-character probabilities along the best CTC path:
+**The confidence score** for each recognized line is derived from the geometric mean of per-character probabilities along the best CTC path:
 
-$$
-\text{conf} = \left(\prod_{t=1}^{T} P(\pi_t^* \;|\; \mathbf{x})\right)^{1/T}
-$$
+```math
+\operatorname{conf} = \left(\prod_{t=1}^{T} P(\pi_t^{*} \mid \mathbf{x})\right)^{1/T}
+```
 
-where $\pi^*$ is the best CTC path (geometric mean for numerical stability).
+where $\pi^{\*}$ is the best CTC path.
 
 ### 4.4 Angle Classification for Rotated Scans
 
@@ -464,39 +460,39 @@ The `use_angle_cls=True` setting enables a lightweight CNN classifier that detec
 
 **Architecture:** A small MobileNet-v3 classifier that takes a cropped text region and outputs:
 
-$$
-P(\text{rotation} = 180° \;|\; \text{crop}) \in [0, 1]
-$$
+```math
+P(\text{rotation} = 180° \mid \text{crop}) \in [0, 1]
+```
 
-If $P > 0.5$, the crop is rotated 180° before recognition. This adds ~1ms per text region.
+If P > 0.5, the crop is rotated 180° before recognition. This adds ~1ms per text region.
 
 ### 4.5 Quality Metrics & Failure Modes
 
 Our OCR engine reports quality at two granularities:
 
-**Per-line confidence** $c_i$: From the CTC decoder, representing certainty about the recognized characters in line $i$.
+**Per-line confidence** cᵢ: From the CTC decoder, representing certainty about the recognized characters in line i.
 
 **Document-level average confidence:**
 
-$$
+```math
 \bar{c} = \frac{1}{n} \sum_{i=1}^{n} c_i
-$$
+```
 
 **Quality thresholds used in the pipeline:**
 
 | Threshold | Interpretation | Pipeline Action |
 |-----------|---------------|-----------------|
-| $\bar{c} \geq 0.85$ | High quality | Proceed normally |
-| $0.65 \leq \bar{c} < 0.85$ | Acceptable | Proceed, log info |
-| $\bar{c} < 0.65$ | Low quality | Proceed with warning, flag for human review |
-| $\bar{c} = 0$ (empty) | No text detected | Classify as UNKNOWN (via threshold, not if/else) |
+| c̄ ≥ 0.85 | High quality | Proceed normally |
+| 0.65 ≤ c̄ < 0.85 | Acceptable | Proceed, log info |
+| c̄ < 0.65 | Low quality | Proceed with warning, flag for human review |
+| c̄ = 0 (empty) | No text detected | Classify as UNKNOWN (via threshold, not if/else) |
 
 **Common failure modes and mitigations:**
 
 | Symptom | Root Cause | Mitigation |
 |---------|-----------|------------|
-| $\bar{c} < 0.5$ with garbled text | Heavily degraded scan, low resolution | Increase scan DPI to 300+, apply denoising |
-| Empty result, $n = 0$ lines | Image contains no text (photo, diagram) | Pipeline gracefully returns UNKNOWN |
+| c̄ < 0.5 with garbled text | Heavily degraded scan, low resolution | Increase scan DPI to 300+, apply denoising |
+| Empty result, n = 0 lines | Image contains no text (photo, diagram) | Pipeline gracefully returns UNKNOWN |
 | Systematic misrecognition | Wrong language model loaded | Verify `ocr_lang` setting |
 | Missing text regions | `det_db_box_thresh` too high | Lower to 0.3 for faint text |
 | Upside-down text recognized | `use_angle_cls=False` | Always enable angle classification |
@@ -515,7 +511,7 @@ for page in pdf.pages:
         use PaddleOCR result
 ```
 
-**Why 50 characters as the threshold?** A page with fewer than ~50 characters of extractable text is almost certainly a scanned image or a page with embedded images. Headers/footers alone rarely exceed this threshold. This is a pragmatic heuristic applied to the extraction method selection — not to the document content classification (which remains zero-fragility).
+**Why 50 characters as the threshold?** A page with fewer than ~50 characters of extractable text is almost certainly a scanned image or a page with embedded images. This is a pragmatic heuristic applied to the extraction method selection — not to the document content classification (which remains zero-fragility).
 
 **DPI selection:** We rasterize at 300 DPI (configurable), which provides a good balance:
 
@@ -555,19 +551,19 @@ for page in pdf.pages:
 
 The core training objective is a contrastive loss that teaches the model to place semantically similar texts close together and dissimilar texts far apart.
 
-Given a query $q$, its positive document $d^+$, and a set of $N-1$ in-batch negatives $\{d_1^-, d_2^-, \ldots, d_{N-1}^-\}$, the **InfoNCE loss** is:
+Given a query q, its positive document d⁺, and a set of N-1 in-batch negatives, the **InfoNCE loss** is:
 
-$$
-\mathcal{L}_{\text{InfoNCE}} = -\log \frac{\exp\big(\text{sim}(q, d^+) / \tau\big)}{\exp\big(\text{sim}(q, d^+) / \tau\big) + \displaystyle\sum_{j=1}^{N-1} \exp\big(\text{sim}(q, d_j^-) / \tau\big)}
-$$
+```math
+\mathcal{L}_{\text{InfoNCE}} = -\log \frac{\exp\bigl(\operatorname{sim}(q, d^{+}) / \tau\bigr)}{\exp\bigl(\operatorname{sim}(q, d^{+}) / \tau\bigr) + \displaystyle\sum_{j=1}^{N-1} \exp\bigl(\operatorname{sim}(q, d_j^{-}) / \tau\bigr)}
+```
 
 where:
-- $\text{sim}(a, b) = \hat{\mathbf{a}} \cdot \hat{\mathbf{b}}$ (cosine similarity)
-- $\tau$ is the temperature parameter (typically $\tau \approx 0.01 - 0.05$), which controls the sharpness of the probability distribution
+- sim(a, b) = â · b̂ (cosine similarity)
+- τ is the temperature parameter (typically τ ≈ 0.01 - 0.05), which controls the sharpness of the probability distribution
 
-**Intuition:** This loss is a $N$-way softmax classifier that tries to identify the positive document among $N$ candidates. Lower temperature $\tau$ makes the distribution peakier, forcing the model to learn finer-grained distinctions.
+**Intuition:** This loss is a N-way softmax classifier that tries to identify the positive document among N candidates. Lower temperature τ makes the distribution peakier, forcing the model to learn finer-grained distinctions.
 
-**In-batch negatives:** With a batch size of $B$, each query uses the other $B-1$ positive documents as negatives. This provides $O(B^2)$ training signal per batch — a key reason why large batch sizes improve embedding quality.
+**In-batch negatives:** With a batch size of B, each query uses the other B-1 positive documents as negatives. This provides O(B²) training signal per batch — a key reason why large batch sizes improve embedding quality.
 
 ### 5.3 The Critical Role of Prefixes
 
@@ -595,29 +591,29 @@ This asymmetry is intentional and handled automatically by the `EmbeddingEngine`
 
 After the transformer produces a raw embedding $\mathbf{v} \in \mathbb{R}^{1024}$, we normalize it:
 
-$$
-\hat{\mathbf{v}} = \frac{\mathbf{v}}{\|\mathbf{v}\|_2} \quad \Longrightarrow \quad \hat{\mathbf{v}} \in \mathcal{S}^{1023}
-$$
+```math
+\hat{\mathbf{v}} = \frac{\mathbf{v}}{\lVert \mathbf{v} \rVert_2} \quad \Longrightarrow \quad \hat{\mathbf{v}} \in \mathcal{S}^{1023}
+```
 
 where $\mathcal{S}^{1023}$ is the unit hypersphere in 1024 dimensions. All embeddings live on the surface of this sphere.
 
 **Geometric picture:** The "distance" between two points on the unit hypersphere is entirely determined by the angle between them:
 
-$$
+```math
 d_{\text{geodesic}}(\hat{\mathbf{a}}, \hat{\mathbf{b}}) = \arccos(\hat{\mathbf{a}} \cdot \hat{\mathbf{b}}) = \theta
-$$
+```
 
-The full complexity of semantic similarity is thus captured by a single scalar: the angle $\theta \in [0, \pi]$ between embedding vectors.
+The full complexity of semantic similarity is thus captured by a single scalar: the angle θ ∈ [0, π] between embedding vectors.
 
 ### 5.5 Average Pooling: From Tokens to Sentences
 
-The transformer processes a sequence of $L$ tokens and produces a hidden state $\mathbf{H} \in \mathbb{R}^{L \times d}$ where $d = 1024$. To obtain a single embedding vector for the entire text, we apply **masked average pooling**:
+The transformer processes a sequence of L tokens and produces a hidden state $\mathbf{H} \in \mathbb{R}^{L \times d}$ where d = 1024. To obtain a single embedding vector for the entire text, we apply **masked average pooling**:
 
-$$
+```math
 \mathbf{v} = \frac{\sum_{i=1}^{L} m_i \cdot \mathbf{h}_i}{\sum_{i=1}^{L} m_i}
-$$
+```
 
-where $m_i \in \{0, 1\}$ is the attention mask (1 for real tokens, 0 for padding).
+where $m_i \in \lbrace 0, 1 \rbrace$ is the attention mask (1 for real tokens, 0 for padding).
 
 **Why average pooling over [CLS] token?** Empirically, average pooling consistently outperforms [CLS]-based pooling for sentence embedding tasks because:
 
@@ -644,13 +640,13 @@ N texts → Tokenizer (pad to max length) → Tensor (N, L) → GPU forward → 
 
 **VRAM estimation formula:**
 
-$$
-\text{VRAM} \approx \text{model\_size} + B \times L \times d \times 4 \times 3
-$$
+```math
+\text{VRAM} \approx \text{model\\_size} + B \times L \times d \times 4 \times 3
+```
 
-where $B$ = batch size, $L$ = sequence length, $d$ = hidden dim, $\times 4$ for float32 bytes, $\times 3$ for activations + gradients + optimizer states (inference only needs $\times 1$).
+where B = batch size, L = sequence length, d = hidden dim, ×4 for float32 bytes, ×3 for activations + gradients + optimizer states (inference only needs ×1).
 
-For E5-large with $B=32$, $L=512$: approximately 4.5 GB for the model + 0.2 GB for activations = ~4.7 GB total during inference.
+For E5-large with B=32, L=512: approximately 4.5 GB for the model + 0.2 GB for activations = ~4.7 GB total during inference.
 
 **Throughput benchmarks:**
 
@@ -707,10 +703,10 @@ The `SemanticRouter` combines all the theory above into a single, elegant classi
 
 | Phase | Complexity | Typical Time |
 |-------|-----------|-------------|
-| Init: embed $M$ descriptions | $O(M \cdot L^2 \cdot d)$ | ~2s (one-time) |
-| Init: compute $K$ centroids | $O(K \cdot m \cdot d)$ | <1ms |
-| Classify 1 document | $O(L^2 \cdot d + K \cdot d)$ | ~25ms |
-| Classify $n$ documents (batch) | $O(n \cdot L^2 \cdot d + n \cdot K \cdot d)$ | ~200ms for $n=100$ |
+| Init: embed M descriptions | O(M · L² · d) | ~2s (one-time) |
+| Init: compute K centroids | O(K · m · d) | <1ms |
+| Classify 1 document | O(L² · d + K · d) | ~25ms |
+| Classify n documents (batch) | O(n · L² · d + n · K · d) | ~200ms for n=100 |
 
 ---
 
@@ -939,4 +935,4 @@ OCR adds 100-500ms per page depending on complexity and DPI.
 
 ---
 
-*Internal use — Orange DATA-IA / SND / DREAMS*
+**PSW**
