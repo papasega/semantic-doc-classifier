@@ -293,7 +293,7 @@ class TestSemanticRouter:
 
     def test_n_routes(self, router: SemanticRouter):
         """Verify the number of initialized routes."""
-        assert router.n_routes == 7  # 7 types (excluding INCONNU)
+        assert router.n_routes == 8  # 8 types (including HORS_SUJET)
         assert DocumentType.INCONNU not in router.route_types
 
     def test_centroid_dimensions(self, router: SemanticRouter):

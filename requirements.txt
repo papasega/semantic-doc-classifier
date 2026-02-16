@@ -4,7 +4,8 @@
 sentence-transformers
 torch
 numpy
-paddlepaddle-gpu    # ou paddlepaddle pour CPU
+###paddlepaddle-gpu    # ou paddlepaddle pour CPU
+paddlepaddle
 paddleocr
 opencv-python-headless
 PyMuPDF           # fitz — extraction PDF native

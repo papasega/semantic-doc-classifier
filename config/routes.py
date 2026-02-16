@@ -39,6 +39,7 @@ class DocumentType(str, Enum):
     TECHNIQUE = "technique"
     RH = "ressources_humaines"
     FORMULAIRE = "formulaire"
+    HORS_SUJET = "hors_sujet"
     INCONNU = "inconnu"
 
     @classmethod
@@ -154,6 +155,17 @@ ROUTES: list[RoutePrototype] = [
             "Structured form with blank fields, checkboxes, dropdown selections and submission instructions",
             "Questionnaire ou enquête avec questions numérotées et espaces de réponse",
             "Cerfa ou formulaire administratif officiel avec numéro de référence réglementaire",
+        ),
+    ),
+    # ── NOISE / OUT OF DOMAIN ──────────────────────────────
+    RoutePrototype(
+        document_type=DocumentType.HORS_SUJET,
+        descriptions=(
+            "Texte aléatoire sans signification sémantique, suite de mots incohérente ou remplissage (lorem ipsum)",
+            "Random gibberish text with no semantic meaning, placeholder content or scrambled letters",
+            "Recette de cuisine, poème, texte littéraire ou personnel sans lien avec l'entreprise",
+            "Cooking recipe, poetry, fiction or personal blog post unrelated to business context",
+            "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt",
         ),
     ),
 ]

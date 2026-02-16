@@ -300,7 +300,7 @@ class SemanticRouter:
 
         # Confidence threshold: if best score is too low -> INCONNU
         predicted_type = best.document_type
-        if best.confidence < self._threshold:
+        if best.confidence < self._threshold or best.document_type == DocumentType.HORS_SUJET:
             predicted_type = DocumentType.INCONNU
 
         latency = override_latency_ms or ((time.perf_counter() - t0) * 1000)
