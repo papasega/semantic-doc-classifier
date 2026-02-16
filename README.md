@@ -232,4 +232,4 @@ Covers: 7 document types with realistic French text, rejection cases (lorem ipsu
 
 ---
 
-*Orange DATA-IA / SND / DREAMS*
+**PSW**
