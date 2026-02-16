@@ -3,7 +3,7 @@
 **Production-grade document classification using vector embeddings and cosine similarity.**
 **Zero regex. Zero keyword matching. Pure vector geometry.**
 
-> For the full mathematical theory behind embeddings, OCR, and classification, see **[THEORY.md](THEORY.md)**.
+> For the full mathematical theory behind embeddings, OCR, and classification, see **[THEORY.md](docs_theory/THEORY.md)**.
 
 ---
 
