@@ -76,13 +76,13 @@ Measures straight-line distance. Sensitive to magnitude: two vectors pointing th
 ### Cosine Similarity
 
 ```math
-\operatorname{cossim}(\mathbf{a}, \mathbf{b}) = \frac{\langle \mathbf{a}, \mathbf{b} \rangle}{\lVert \mathbf{a} \rVert_2 \cdot \lVert \mathbf{b} \rVert_2} = \frac{\displaystyle\sum_{i=1}^{d} a_i b_i}{\sqrt{\displaystyle\sum_{i=1}^{d} a_i^2} \;\cdot\; \sqrt{\displaystyle\sum_{i=1}^{d} b_i^2}}
+\mathrm{cossim}(\mathbf{a}, \mathbf{b}) = \frac{\langle \mathbf{a}, \mathbf{b} \rangle}{\lVert \mathbf{a} \rVert_2 \cdot \lVert \mathbf{b} \rVert_2} = \frac{\displaystyle\sum_{i=1}^{d} a_i b_i}{\sqrt{\displaystyle\sum_{i=1}^{d} a_i^2} \;\cdot\; \sqrt{\displaystyle\sum_{i=1}^{d} b_i^2}}
 ```
 
 Measures the *angle* θ between vectors, ignoring magnitudes entirely:
 
 ```math
-\operatorname{cossim}(\mathbf{a}, \mathbf{b}) = \cos(\theta)
+\mathrm{cossim}(\mathbf{a}, \mathbf{b}) = \cos(\theta)
 ```
 
 | Value | Geometric Meaning | Semantic Interpretation |
@@ -114,7 +114,7 @@ The normalization projects any vector onto the unit hypersphere:
 **Cosine similarity becomes a simple dot product:**
 
 ```math
-\operatorname{cossim}(\hat{\mathbf{a}}, \hat{\mathbf{b}}) = \frac{\hat{\mathbf{a}} \cdot \hat{\mathbf{b}}}{\underbrace{\lVert \hat{\mathbf{a}} \rVert_2}_{=1} \cdot \underbrace{\lVert \hat{\mathbf{b}} \rVert_2}_{=1}} = \hat{\mathbf{a}} \cdot \hat{\mathbf{b}}
+\mathrm{cossim}(\hat{\mathbf{a}}, \hat{\mathbf{b}}) = \frac{\hat{\mathbf{a}} \cdot \hat{\mathbf{b}}}{\underbrace{\lVert \hat{\mathbf{a}} \rVert_2}_{=1} \cdot \underbrace{\lVert \hat{\mathbf{b}} \rVert_2}_{=1}} = \hat{\mathbf{a}} \cdot \hat{\mathbf{b}}
 ```
 
 **Euclidean distance becomes a monotonic function of cosine similarity:**
@@ -167,7 +167,7 @@ s_k = \hat{\mathbf{q}} \cdot \hat{\mathbf{c}}_k \quad \forall\; k \in \lbrace 1,
 The predicted class:
 
 ```math
-\hat{k} = \underset{k}{\operatorname{arg\,max}} \; s_k
+\hat{k} = \underset{k}{\mathrm{arg\,max}} \; s_k
 ```
 
 ### Computational complexity
@@ -190,7 +190,7 @@ For batch classification of n documents: a single O(n · K · d) matrix multiply
 The best score $s^{\*} = \max_k s_k$ is compared against a threshold τ (default: 0.40):
 
 ```math
-\hat{k} = \begin{cases} \underset{k}{\operatorname{arg\,max}}\; s_k & \text{if } s^{*} \geq \tau \\ \texttt{UNKNOWN} & \text{if } s^{*} < \tau \end{cases}
+\hat{k} = \begin{cases} \underset{k}{\mathrm{arg\,max}}\; s_k & \text{if } s^{*} \geq \tau \\ \texttt{UNKNOWN} & \text{if } s^{*} < \tau \end{cases}
 ```
 
 ### Classification margin
@@ -278,7 +278,7 @@ As $k \to \infty$, this sigmoid → hard step function. During training, k stays
 **Box confidence:**
 
 ```math
-\operatorname{score} = \frac{1}{|R|} \sum_{(i,j) \in R} P_{i,j}
+\mathrm{score} = \frac{1}{|R|} \sum_{(i,j) \in R} P_{i,j}
 ```
 
 The `det_db_box_thresh` parameter (0.5) filters out low-confidence detections.
@@ -293,11 +293,11 @@ Each detected text region → cropped → fed to the recognizer.
 2. **BiLSTM**: models character dependencies
 
 ```math
-\overrightarrow{\mathbf{h}}_t = \operatorname{LSTM_{fwd}}(\mathbf{F}_t,\; \overrightarrow{\mathbf{h}}_{t-1})
+\overrightarrow{\mathbf{h}}_t = \mathrm{LSTM_{fwd}}(\mathbf{F}_t,\; \overrightarrow{\mathbf{h}}_{t-1})
 ```
 
 ```math
-\overleftarrow{\mathbf{h}}_t = \operatorname{LSTM_{bwd}}(\mathbf{F}_t,\; \overleftarrow{\mathbf{h}}_{t+1})
+\overleftarrow{\mathbf{h}}_t = \mathrm{LSTM_{bwd}}(\mathbf{F}_t,\; \overleftarrow{\mathbf{h}}_{t+1})
 ```
 
 ```math
@@ -307,7 +307,7 @@ Each detected text region → cropped → fed to the recognizer.
 3. **Softmax over characters** at each time step:
 
 ```math
-P(\pi_t = c \mid \mathbf{x}) = \operatorname{softmax}(\mathbf{W}\mathbf{h}_t + \mathbf{b})_c
+P(\pi_t = c \mid \mathbf{x}) = \mathrm{softmax}(\mathbf{W}\mathbf{h}_t + \mathbf{b})_c
 ```
 
 **CTC decoding** solves the alignment problem (T time steps → L characters, L ≤ T). It introduces a blank token ε and a many-to-one mapping that removes blanks and collapses repeats:
@@ -325,7 +325,7 @@ P(\mathbf{y} \mid \mathbf{x}) = \sum_{\pi \in \mathcal{B}^{-1}(\mathbf{y})} \pro
 **Per-line confidence** is the geometric mean along the best CTC path:
 
 ```math
-\operatorname{conf} = \left(\prod_{t=1}^{T} P(\pi_t^{*} \mid \mathbf{x})\right)^{1/T}
+\mathrm{conf} = \left(\prod_{t=1}^{T} P(\pi_t^{*} \mid \mathbf{x})\right)^{1/T}
 ```
 
 ### 7.3 Angle Classification
@@ -386,7 +386,7 @@ Dual strategy per page:
 Given query q, positive doc d⁺, and N-1 in-batch negatives:
 
 ```math
-\mathcal{L}_{\text{InfoNCE}} = -\log \frac{\exp\bigl(\operatorname{sim}(q, d^{+}) / \tau\bigr)}{\exp\bigl(\operatorname{sim}(q, d^{+}) / \tau\bigr) + \displaystyle\sum_{j=1}^{N-1} \exp\bigl(\operatorname{sim}(q, d_j^{-}) / \tau\bigr)}
+\mathcal{L}_{\text{InfoNCE}} = -\log \frac{\exp\bigl(\mathrm{sim}(q, d^{+}) / \tau\bigr)}{\exp\bigl(\mathrm{sim}(q, d^{+}) / \tau\bigr) + \displaystyle\sum_{j=1}^{N-1} \exp\bigl(\mathrm{sim}(q, d_j^{-}) / \tau\bigr)}
 ```
 
 - sim(a,b) = cosine similarity
