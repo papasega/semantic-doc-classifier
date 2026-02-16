@@ -39,7 +39,7 @@ predicted_class = argmax(similarities)
 doc_classifier/
 ├── config/
 │   ├── settings.py              # Pydantic Settings (env vars, defaults)
-│   └── routes.py                # ⭐ Semantic route definitions (add classes here)
+│   └── routes.py                # Semantic route definitions (add classes here)
 ├── engines/
 │   ├── ocr_engine.py            # PaddleOCR wrapper (hardened)
 │   └── embedding_engine.py      # SentenceTransformer E5 wrapper
@@ -57,29 +57,6 @@ doc_classifier/
 ```
 
 ---
-
-## Quick Start
-
-### Docker (recommended)
-
-```bash
-docker compose up -d
-curl http://localhost:8000/health
-
-# Classify a document
-curl -X POST http://localhost:8000/classify -F "file=@invoice.pdf"
-
-# Batch
-curl -X POST http://localhost:8000/classify/batch \
-  -F "files=@doc1.pdf" -F "files=@doc2.pdf"
-```
-
-### Local
-
-```bash
-pip install -r requirements.txt
-uvicorn main:app --host 0.0.0.0 --port 8000
-```
 
 ### Python API
 
