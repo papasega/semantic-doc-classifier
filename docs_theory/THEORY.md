@@ -40,7 +40,7 @@ It maps a text string from the space of all texts $\mathcal{T}$ to a point in a 
 The fundamental property of a well-trained embedding model is that **semantic similarity maps to geometric proximity**:
 
 ```math
-\operatorname{sem}(t_1, t_2) \approx \operatorname{sim}\bigl(f_{\theta}(t_1),\; f_{\theta}(t_2)\bigr)
+\mathrm{sem}(t_1, t_2) \approx \mathrm{sim}\bigl(f_{\theta}(t_1),\; f_{\theta}(t_2)\bigr)
 ```
 
 This means:
